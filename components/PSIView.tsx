@@ -11,14 +11,19 @@ export default function PSIView() {
     // Listen for feature updates from VoiceRecorder via custom event
     const handleFeatureUpdate = (event: any) => {
       setFeatures(event.detail.features)
-      // Generate mock spectrum from features for visualization
+      // Generate spectrum from features for visualization
       if (event.detail.features) {
         const energy = event.detail.features.energy || 0
-        const peak = event.detail.features.spectralPeak || 0
+        const centroid = event.detail.features.spectralCentroid || 0
+        const entropy = event.detail.features.spectralEntropy || 0
+        
+        // Create spectrum visualization based on centroid and entropy
         const newSpectrum = Array.from({ length: 32 }).map((_, i) => {
-          const baseLevel = (energy / 100) * Math.random()
-          const peakLevel = i === Math.floor((peak / 100) * 31) ? energy / 50 : 0
-          return Math.max(baseLevel, peakLevel)
+          const freq = (i / 32) * 22050 // Half of 44.1kHz sample rate
+          const distFromCentroid = Math.abs(freq - centroid) / 1000
+          const baseLevel = (energy / 100) * entropy
+          const centroidPeak = Math.max(0, 1 - distFromCentroid) * baseLevel
+          return centroidPeak + Math.random() * 0.1
         })
         setSpectrum(newSpectrum)
       }
@@ -50,7 +55,7 @@ export default function PSIView() {
       const barHeight = (value / 10) * height
       const x = i * barWidth
 
-      ctx.fillStyle = `hsl(${hue}, 100%, ${50 + value * 10}%)`
+      ctx.fillStyle = `hsl(${hue}, 100%, ${50 + Math.min(value * 20, 100)}%)`
       ctx.fillRect(x, height - barHeight, barWidth - 1, barHeight)
     })
 
@@ -79,12 +84,15 @@ export default function PSIView() {
         }}
       />
 
-      <div style={{ fontSize: 12, color: "#e5e5e5" }}>
+      <div style={{ fontSize: 11, color: "#e5e5e5", lineHeight: "1.6" }}>
         {features ? (
           <>
-            <div>Energy: {features.energy?.toFixed(4)}</div>
-            <div>Spectral Peak: {features.spectralPeak?.toFixed(4)}</div>
-            <div>Entropy: {features.entropy?.toFixed(4)}</div>
+            <div><strong>Energy:</strong> {features.energy?.toFixed(2)} (total amplitude)</div>
+            <div><strong>Log Energy:</strong> {features.logEnergy?.toFixed(3)} (compressed)</div>
+            <div><strong>Spectral Entropy:</strong> {features.spectralEntropy?.toFixed(3)} (complexity: 0=pure tone, 4+=noise)</div>
+            <div><strong>Spectral Centroid:</strong> {features.spectralCentroid?.toFixed(0)} Hz (brightness: low=warm, high=bright)</div>
+            <div><strong>Peak Frequency:</strong> {features.peakFrequency?.toFixed(0)} Hz (dominant frequency)</div>
+            <div><strong>Spectral Flux:</strong> {features.spectralFlux?.toFixed(3)} (change rate: high=dynamic)</div>
           </>
         ) : (
           <div style={{ color: "#666" }}>Waiting for voice input...</div>

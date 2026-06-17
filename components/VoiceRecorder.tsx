@@ -37,7 +37,7 @@ export default function VoiceRecorder() {
         const inputData = event.inputBuffer.getChannelData(0)
         const samples = Array.from(inputData)
 
-        // Send to voice API for FFT feature extraction
+        // Send to voice API for spectral feature extraction
         try {
           const response = await fetch("/api/voice", {
             method: "POST",
@@ -66,7 +66,7 @@ export default function VoiceRecorder() {
             new CustomEvent("agentUpdate", { detail: stepData })
           )
 
-          setStatus(`Energy: ${(data.features.energy).toFixed(2)} | Entropy: ${(data.features.entropy).toFixed(2)}`)
+          setStatus(`Energy: ${(data.features.energy).toFixed(2)} | Entropy: ${(data.features.spectralEntropy).toFixed(2)} | Peak: ${(data.features.peakFrequency).toFixed(0)}Hz`)
         } catch (error) {
           console.error("API error:", error)
           setStatus("API error: " + (error as Error).message)
@@ -112,9 +112,12 @@ export default function VoiceRecorder() {
       <div style={{ fontSize: 12, color: "#00d4ff" }}>Status: {status}</div>
       {features && (
         <div style={{ fontSize: 12, marginTop: 10, color: "#e5e5e5" }}>
-          <div>Energy: {features.energy?.toFixed(4)}</div>
-          <div>Peak: {features.spectralPeak?.toFixed(4)}</div>
-          <div>Entropy: {features.entropy?.toFixed(4)}</div>
+          <div><strong>Energy (Total Amplitude):</strong> {features.energy?.toFixed(2)}</div>
+          <div><strong>Log Energy (Compressed):</strong> {features.logEnergy?.toFixed(3)}</div>
+          <div><strong>Spectral Entropy (Complexity):</strong> {features.spectralEntropy?.toFixed(3)}</div>
+          <div><strong>Spectral Centroid (Brightness):</strong> {features.spectralCentroid?.toFixed(0)} Hz</div>
+          <div><strong>Peak Frequency (Dominant):</strong> {features.peakFrequency?.toFixed(0)} Hz</div>
+          <div><strong>Spectral Flux (Change Rate):</strong> {features.spectralFlux?.toFixed(3)}</div>
         </div>
       )}
       {agents && (

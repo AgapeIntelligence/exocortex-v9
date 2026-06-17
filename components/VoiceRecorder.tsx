@@ -47,6 +47,11 @@ export default function VoiceRecorder() {
           const data = await response.json()
           setFeatures(data.features)
 
+          // Broadcast feature update to other components
+          window.dispatchEvent(
+            new CustomEvent("featureUpdate", { detail: data })
+          )
+
           // Step agents with new features
           const stepResponse = await fetch("/api/step", {
             method: "POST",
@@ -55,9 +60,16 @@ export default function VoiceRecorder() {
           })
           const stepData = await stepResponse.json()
           setAgents(stepData.agents)
+
+          // Broadcast agent update to other components
+          window.dispatchEvent(
+            new CustomEvent("agentUpdate", { detail: stepData })
+          )
+
           setStatus(`Energy: ${(data.features.energy).toFixed(2)} | Entropy: ${(data.features.entropy).toFixed(2)}`)
         } catch (error) {
           console.error("API error:", error)
+          setStatus("API error: " + (error as Error).message)
         }
       }
 

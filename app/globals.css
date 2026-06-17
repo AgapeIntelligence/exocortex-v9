@@ -1,0 +1,25 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: #0b0b0f;
+  color: #e5e5e5;
+  font-family: monospace;
+}
+
+button {
+  background: #1a1a2e;
+  border: 1px solid #16213e;
+  color: #00d4ff;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-family: monospace;
+}
+
+button:hover {
+  background: #16213e;
+  border-color: #0f3460;
+}
+
+h1, h2 {
+  color: #00d4ff;
+}

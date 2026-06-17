@@ -5,6 +5,12 @@
     "jsx": "preserve",
     "moduleResolution": "bundler",
     "strict": true,
-    "noEmit": true
-  }
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
 }
